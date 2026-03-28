@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Swayam Khantwal — Robotics & Drone Systems Developer. Building autonomous systems, drones, and intelligent robotics."
+      content="Swayam Khantwal — Robotics Engineer & Drone Systems Developer. Building autonomous systems, drones, and intelligent robotics."
     />
-    <title>Swayam Khantwal | Robotics & Drone Systems Developer</title>
+    <title>Swayam Khantwal | Robotics & Drone Engineer</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -91,7 +91,7 @@
           <span class="name-line accent-glow">Khantwal</span>
         </h1>
         <p class="hero-subtitle" id="hero-subtitle">
-          Robotics &nbsp;·&nbsp; Drone Systems &nbsp;·&nbsp; Autonomous
+          Robotics Engineer &nbsp;·&nbsp; Drone Systems &nbsp;·&nbsp; Autonomous
           Navigation
         </p>
         <div class="hero-cta-row">
@@ -200,7 +200,12 @@
         </div>
 
         <!-- FEATURED PROJECT -->
-        <div class="featured-project gsap-fade">
+        <div
+          class="featured-project gsap-fade project-clickable"
+          data-project="autonomous-drone"
+          role="button"
+          tabindex="0"
+        >
           <div class="featured-badge">FEATURED MISSION</div>
           <div class="featured-grid">
             <div class="featured-visual">
@@ -292,7 +297,13 @@
 
         <!-- OTHER PROJECTS -->
         <div class="other-projects-grid">
-          <div class="project-card gsap-fade-up" id="proj-card-1">
+          <div
+            class="project-card gsap-fade-up project-clickable"
+            id="proj-card-1"
+            data-project="nrf24-ground-station"
+            role="button"
+            tabindex="0"
+          >
             <div class="project-card-header">
               <div class="project-card-icon">⚡</div>
               <div class="project-card-title">NRF24 RC Ground Station</div>
@@ -307,9 +318,16 @@
               <span class="mini-chip">NRF24L01+</span>
               <span class="mini-chip">RF Comm</span>
             </div>
+            <span class="project-view-hint">View Details →</span>
           </div>
 
-          <div class="project-card gsap-fade-up" id="proj-card-2">
+          <div
+            class="project-card gsap-fade-up project-clickable"
+            id="proj-card-2"
+            data-project="embedded-navigation"
+            role="button"
+            tabindex="0"
+          >
             <div class="project-card-header">
               <div class="project-card-icon">🤖</div>
               <div class="project-card-title">Embedded Navigation System</div>
@@ -324,9 +342,16 @@
               <span class="mini-chip">GPS Fusion</span>
               <span class="mini-chip">Python</span>
             </div>
+            <span class="project-view-hint">View Details →</span>
           </div>
 
-          <div class="project-card gsap-fade-up" id="proj-card-3">
+          <div
+            class="project-card gsap-fade-up project-clickable"
+            id="proj-card-3"
+            data-project="lidar-mapping"
+            role="button"
+            tabindex="0"
+          >
             <div class="project-card-header">
               <div class="project-card-icon">🔭</div>
               <div class="project-card-title">LiDAR Mapping Module</div>
@@ -341,6 +366,7 @@
               <span class="mini-chip">ArduPilot</span>
               <span class="mini-chip">LiDAR</span>
             </div>
+            <span class="project-view-hint">View Details →</span>
           </div>
         </div>
       </div>
@@ -462,7 +488,7 @@
               </a>
 
               <a
-                href="https://github.com/"
+                href="https://github.com/swayam7024"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="contact-link"
@@ -487,7 +513,7 @@
               </a>
 
               <a
-                href="https://linkedin.com/"
+                href="https://linkedin.com/in/swayamkhantwalcodes"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="contact-link"
@@ -582,6 +608,36 @@
         </div>
       </div>
     </section>
+
+    <!-- ═══════════════ BLOG OVERLAY ═══════════════ -->
+    <div id="blog-overlay" class="blog-overlay" aria-hidden="true">
+      <div class="blog-overlay-inner">
+        <header class="blog-header">
+          <button
+            class="blog-back-btn"
+            id="blog-back-btn"
+            aria-label="Back to projects"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <line x1="19" y1="12" x2="5" y2="12" />
+              <polyline points="12 19 5 12 12 5" />
+            </svg>
+            <span>Back to Projects</span>
+          </button>
+        </header>
+        <article class="blog-body" id="blog-content">
+          <!-- Populated dynamically by JS -->
+        </article>
+      </div>
+    </div>
 
     <!-- ═══════════════ FOOTER ═══════════════ -->
     <footer class="footer">
