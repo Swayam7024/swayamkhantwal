@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Deep dive into implementing sensor fusion with Extended Kalman Filter for autonomous drone navigation - from theory to practical implementation."
+    />
+    <title>Sensor Fusion with Extended Kalman Filter | Swayam Khantwal</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../css/style.css" />
+    <style>
+      .blog-post-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 60px 20px;
+      }
+
+      .blog-post-header {
+        margin-bottom: 40px;
+        text-align: center;
+      }
+
+      .blog-post-meta {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        color: #888;
+      }
+
+      .blog-post-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #fff;
+      }
+
+      .blog-post-content {
+        line-height: 1.8;
+        color: #ddd;
+        font-size: 1.1rem;
+      }
+
+      .blog-post-content h2 {
+        font-size: 1.8rem;
+        margin-top: 40px;
+        margin-bottom: 20px;
+        color: #00d4ff;
+      }
+
+      .blog-post-content h3 {
+        font-size: 1.4rem;
+        margin-top: 30px;
+        margin-bottom: 15px;
+        color: #fff;
+      }
+
+      .blog-post-content p {
+        margin-bottom: 15px;
+      }
+
+      .blog-post-content ul {
+        margin-left: 20px;
+        margin-bottom: 15px;
+      }
+
+      .blog-post-content li {
+        margin-bottom: 10px;
+      }
+
+      .blog-post-content code {
+        background: rgba(0, 212, 255, 0.1);
+        padding: 2px 6px;
+        border-radius: 3px;
+        color: #00d4ff;
+        font-family: "Courier New", monospace;
+      }
+
+      .blog-post-content strong {
+        color: #00d4ff;
+      }
+
+      .blog-post-content .highlight-box {
+        background: rgba(0, 212, 255, 0.05);
+        border-left: 4px solid #00d4ff;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 4px;
+      }
+
+      .back-button {
+        display: inline-block;
+        margin-bottom: 30px;
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #00d4ff, #0088ff);
+        color: #000;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .back-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="blog-post-container">
+      <a href="../index.html#blog" class="back-button">← Back to Blog</a>
+
+      <header class="blog-post-header">
+        <div class="blog-post-meta">
+          <span>April 5, 2026</span>
+          <span>•</span>
+          <span>Technical</span>
+          <span>•</span>
+          <span>10 min read</span>
+        </div>
+        <h1 class="blog-post-title">
+          Sensor Fusion with Extended Kalman Filter
+        </h1>
+      </header>
+
+      <article class="blog-post-content">
+        <h2>The Problem: Unreliable Sensors</h2>
+        <p>
+          Building autonomous systems requires knowing where you are with
+          accuracy. GPS can tell you rough position, but it drifts. IMU sensors
+          measure acceleration and rotation, but they accumulate errors over
+          time. Barometers measure altitude but are affected by weather.
+        </p>
+
+        <p>
+          No single sensor is reliable enough for autonomous navigation. The
+          solution? <strong>Sensor Fusion</strong>—combining multiple sensors
+          intelligently to produce better estimates than any individual sensor.
+        </p>
+
+        <div class="highlight-box">
+          <strong>Real-world impact:</strong> Using sensor fusion, I improved
+          position estimation accuracy from ±5 meters (GPS alone) to ±0.5 meters
+          (fused estimates). That's a 10x improvement!
+        </div>
+
+        <h2>Why Extended Kalman Filter?</h2>
+        <p>
+          The Extended Kalman Filter (EKF) is the industry standard for sensor
+          fusion in autonomous systems because it:
+        </p>
+        <ul>
+          <li>
+            <strong>Predicts state:</strong> Uses a motion model to predict
+            where the drone will be
+          </li>
+          <li>
+            <strong>Corrects with measurements:</strong> Updates predictions
+            based on sensor readings
+          </li>
+          <li>
+            <strong>Estimates uncertainty:</strong> Tracks how confident it is
+            about each estimate
+          </li>
+          <li>
+            <strong>Handles nonlinearity:</strong> Works with dynamics that
+            aren't strictly linear (like drone kinematics)
+          </li>
+          <li>
+            <strong>Real-time capable:</strong> Computationally efficient enough
+            for embedded systems
+          </li>
+        </ul>
+
+        <h2>Understanding the EKF Algorithm</h2>
+
+        <h3>The Two Stages</h3>
+        <p>The EKF operates in two alternating stages:</p>
+
+        <h3>1. Prediction (Time Update)</h3>
+        <p>
+          Between sensor measurements, the filter predicts the drone's next
+          state using a <strong>motion model</strong>:
+        </p>
+        <ul>
+          <li>
+            If accelerometer reads +2 m/s², predict velocity will increase by 2
+            m/s
+          </li>
+          <li>
+            If velocity is 10 m/s, predict position will move 10 meters in that
+            direction
+          </li>
+          <li>
+            Also account for uncertainty: "I'm pretty sure about this, but not
+            100%"
+          </li>
+        </ul>
+
+        <h3>2. Correction (Measurement Update)</h3>
+        <p>When a new sensor measurement arrives, the filter:</p>
+        <ul>
+          <li>Compares the measurement with what was predicted</li>
+          <li>Calculates the difference (innovation or residual)</li>
+          <li>
+            Updates the state estimate based on how trustworthy the sensor is
+          </li>
+          <li>Updates the uncertainty estimate</li>
+        </ul>
+
+        <h2>Practical Implementation</h2>
+
+        <h3>State Vector</h3>
+        <p>
+          I defined the state as:
+          <code>[x, y, z, vx, vy, vz, pitch, roll]</code>
+        </p>
+        <p>
+          This captures position (x,y,z), velocity, and orientation angles
+          needed for autonomous flight.
+        </p>
+
+        <h3>Sensor Models</h3>
+
+        <h4>GPS Measurement</h4>
+        <p>
+          GPS gives us position directly:
+          <code>z_gps = [x_meas, y_meas, z_meas]</code> but with noise of about
+          ±5m
+        </p>
+
+        <h4>IMU Measurement</h4>
+        <p>Accelerometer and gyroscope provide motion information:</p>
+        <ul>
+          <li>
+            Accelerometer: <code>a = dv/dt</code> (very accurate short-term)
+          </li>
+          <li>Gyroscope: <code>ω = dθ/dt</code> (drifts over time)</li>
+        </ul>
+
+        <h4>Barometer Measurement</h4>
+        <p>
+          Altimeter provides altitude:
+          <code>z_alt = barometer_reading</code> with ±0.5m accuracy
+        </p>
+
+        <h3>Covariance Tuning</h3>
+        <p>The key to a good EKF is properly tuning the covariance matrices:</p>
+        <ul>
+          <li>
+            <strong>Process Noise (Q):</strong> How much we trust the motion
+            model (low Q = high trust)
+          </li>
+          <li>
+            <strong>Measurement Noise (R):</strong> How much we trust sensors
+            (low R = high trust)
+          </li>
+        </ul>
+
+        <p>For my system:</p>
+        <ul>
+          <li>GPS: R = very large (signals weak, trust less)</li>
+          <li>IMU: R = small (very accurate, trust more)</li>
+          <li>Barometer: R = medium (decent accuracy for altitude only)</li>
+        </ul>
+
+        <h2>Real Performance Results</h2>
+
+        <h3>Without Sensor Fusion (GPS Only)</h3>
+        <div class="highlight-box">
+          <strong>Horizontal Position Error:</strong> ±5 to 10 meters
+          <br />
+          <strong>Vertical Error:</strong> ±2 to 5 meters
+          <br />
+          <strong>Problem:</strong> Can't follow a straight flight path, drifts
+          in random directions
+        </div>
+
+        <h3>With EKF Fusion</h3>
+        <div class="highlight-box">
+          <strong>Horizontal Position Error:</strong> ±0.3 to 0.7 meters
+          <br />
+          <strong>Vertical Error:</strong> ±0.2 to 0.4 meters
+          <br />
+          <strong>Benefit:</strong> Can reliably follow GPS waypoints and hover
+          in place
+        </div>
+
+        <h2>Challenges and Solutions</h2>
+
+        <h3>Challenge 1: GPS Dropouts</h3>
+        <p>
+          <strong>Problem:</strong> When flying under trees or in urban canyons,
+          GPS signal fails.
+        </p>
+        <p>
+          <strong>Solution:</strong> The EKF naturally handles this! Without GPS
+          measurements, it relies on IMU predictions. The state uncertainty
+          grows, but the system remains stable for several minutes using only
+          IMU.
+        </p>
+
+        <h3>Challenge 2: Biased Accelerometer Readings</h3>
+        <p>
+          <strong>Problem:</strong> Mounting vibrations and temperature changes
+          bias accelerometers.
+        </p>
+        <p>
+          <strong>Solution:</strong> Implemented bias estimation as a separate
+          state in the filter. The EKF learns and corrects for these biases
+          automatically.
+        </p>
+
+        <h3>Challenge 3: Computational Cost</h3>
+        <p>
+          <strong>Problem:</strong> Full EKF with 12+ states runs at 10 Hz on
+          Raspberry Pi. We needed 50 Hz for smooth control.
+        </p>
+        <p>
+          <strong>Solution:</strong> Optimized matrix operations, reduced state
+          vector to essential states only, and implemented an unscented Kalman
+          filter (UKF) approximation for speed.
+        </p>
+
+        <h2>Key Takeaways</h2>
+        <ul>
+          <li>
+            <strong>Sensor fusion is a necessity:</strong> No single sensor is
+            good enough for autonomous systems
+          </li>
+          <li>
+            <strong>EKF is practical:</strong> Despite being mathematical, it's
+            surprisingly practical to implement
+          </li>
+          <li>
+            <strong>Tuning matters:</strong> Getting the noise covariances right
+            is critical for performance
+          </li>
+          <li>
+            <strong>Uncertainty quantification is valuable:</strong> Knowing not
+            just where you are, but how confident you are
+          </li>
+          <li>
+            <strong>Real-world deployment is different:</strong> Always test
+            with actual sensor data in deployment environment
+          </li>
+        </ul>
+
+        <h2>Resources and Further Reading</h2>
+        <p>If you want to implement EKF in your projects, I recommend:</p>
+        <ul>
+          <li><code>filterpy</code> Python library—great for prototyping</li>
+          <li>
+            Study the ArduPilot source code—production-grade implementation
+          </li>
+          <li>Multi-sensor fusion literature—solid theoretical foundation</li>
+          <li>
+            Simulation before deployment—always validate in software first
+          </li>
+        </ul>
+
+        <h2>Conclusion</h2>
+        <p>
+          Sensor fusion using Extended Kalman Filter transformed my autonomous
+          drone from unreliable to production-ready. It's one of the most
+          important techniques in robotics and autonomous systems. Understanding
+          and implementing it gave me deep insights into how real-world
+          autonomous systems work.
+        </p>
+
+        <p>
+          If you're working on any autonomous project requiring accurate state
+          estimation, I highly recommend diving into EKF. It's a skill that pays
+          dividends.
+        </p>
+      </article>
+    </div>
+  </body>
+</html>

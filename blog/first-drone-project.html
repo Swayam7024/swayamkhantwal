@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A detailed technical walkthrough of building my first autonomous drone project using Pixhawk, Raspberry Pi, and LiDAR."
+    />
+    <title>Building My First Autonomous Drone Project | Swayam Khantwal</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../css/style.css" />
+    <style>
+      .blog-post-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 60px 20px;
+      }
+
+      .blog-post-header {
+        margin-bottom: 40px;
+        text-align: center;
+      }
+
+      .blog-post-meta {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        color: #888;
+      }
+
+      .blog-post-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #fff;
+      }
+
+      .blog-post-content {
+        line-height: 1.8;
+        color: #ddd;
+        font-size: 1.1rem;
+      }
+
+      .blog-post-content h2 {
+        font-size: 1.8rem;
+        margin-top: 40px;
+        margin-bottom: 20px;
+        color: #00d4ff;
+      }
+
+      .blog-post-content h3 {
+        font-size: 1.4rem;
+        margin-top: 30px;
+        margin-bottom: 15px;
+        color: #fff;
+      }
+
+      .blog-post-content p {
+        margin-bottom: 15px;
+      }
+
+      .blog-post-content ul {
+        margin-left: 20px;
+        margin-bottom: 15px;
+      }
+
+      .blog-post-content li {
+        margin-bottom: 10px;
+      }
+
+      .blog-post-content code {
+        background: rgba(0, 212, 255, 0.1);
+        padding: 2px 6px;
+        border-radius: 3px;
+        color: #00d4ff;
+        font-family: "Courier New", monospace;
+      }
+
+      .blog-post-content strong {
+        color: #00d4ff;
+      }
+
+      .back-button {
+        display: inline-block;
+        margin-bottom: 30px;
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #00d4ff, #0088ff);
+        color: #000;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .back-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="blog-post-container">
+      <a href="../index.html#blog" class="back-button">← Back to Blog</a>
+
+      <header class="blog-post-header">
+        <div class="blog-post-meta">
+          <span>April 10, 2026</span>
+          <span>•</span>
+          <span>Technical</span>
+          <span>•</span>
+          <span>8 min read</span>
+        </div>
+        <h1 class="blog-post-title">
+          Building My First Autonomous Drone Project
+        </h1>
+      </header>
+
+      <article class="blog-post-content">
+        <h2>The Idea</h2>
+        <p>
+          When I started my BCA program, I was fascinated by autonomous systems
+          and robotics. The idea of building a drone that could fly by itself,
+          navigate using GPS, and avoid obstacles seemed like the ultimate
+          engineering challenge. That's when I decided to build an autonomous
+          drone delivery system.
+        </p>
+
+        <h2>Hardware Selection</h2>
+        <p>
+          The first step was choosing the right components. This required
+          careful consideration of performance, compatibility, and budget:
+        </p>
+        <ul>
+          <li>
+            <strong>Flight Controller:</strong> Pixhawk 2.4.8 for its
+            reliability and extensive documentation
+          </li>
+          <li>
+            <strong>Autopilot Firmware:</strong> ArduPilot for its mature
+            codebase and autonomous flight capabilities
+          </li>
+          <li>
+            <strong>On-board Computer:</strong> Raspberry Pi 4B for running
+            mission planning algorithms
+          </li>
+          <li>
+            <strong>Sensors:</strong> Dual GPS modules, IMU (6-axis), and
+            barometer for accurate state estimation
+          </li>
+          <li>
+            <strong>Obstacle Detection:</strong> TF-Luna LiDAR for real-time
+            obstacle detection
+          </li>
+          <li>
+            <strong>Communication:</strong> NRF24L01+ RF modules for ground
+            station communication
+          </li>
+          <li>
+            <strong>Power Management:</strong> High-capacity LiPo batteries with
+            BEC regulation
+          </li>
+        </ul>
+
+        <h2>Assembly Phase</h2>
+        <p>
+          Assembling the drone was more complex than I expected. Every
+          connection mattered, and mistakes could lead to sensor failures or
+          complete system crashes.
+        </p>
+
+        <h3>Electrical Integration</h3>
+        <p>
+          I spent hours designing the power distribution board, ensuring that:
+        </p>
+        <ul>
+          <li>
+            Each component received clean power without noise interference
+          </li>
+          <li>
+            The system had proper voltage regulation (5V, 3.3V, and 12V rails)
+          </li>
+          <li>
+            Current draw didn't exceed battery capacity during peak operations
+          </li>
+          <li>
+            BEC (Battery Elimination Circuits) prevented cascading failures
+          </li>
+        </ul>
+
+        <h3>Sensor Calibration</h3>
+        <p>
+          Raw sensor data is useless without proper calibration. I created
+          calibration routines for:
+        </p>
+        <ul>
+          <li>
+            <strong>IMU:</strong> Accelerometer and gyroscope bias calibration
+            with the drone in different orientations
+          </li>
+          <li>
+            <strong>Compass:</strong> Hard iron and soft iron compensation for
+            magnetic interference
+          </li>
+          <li>
+            <strong>LiDAR:</strong> Distance offset correction to account for
+            mounting height
+          </li>
+          <li>
+            <strong>GPS:</strong> Antenna placement optimization and
+            multi-constellation support (GPS + GLONASS)
+          </li>
+        </ul>
+
+        <h2>Software Development</h2>
+        <p>The software architecture was critical. I implemented:</p>
+
+        <h3>Flight Control Loop</h3>
+        <p>
+          Using ArduPilot as the base, I tuned PID controllers for pitch, roll,
+          and yaw control. This required hours of testing in different wind
+          conditions and load configurations.
+        </p>
+
+        <h3>Autonomous Mission Planning</h3>
+        <p>I wrote Python scripts using the DroneKit library to:</p>
+        <ul>
+          <li>Define GPS waypoint routes through geographic coordinates</li>
+          <li>Manage flight automation commands via MAVLink protocol</li>
+          <li>Monitor real-time flight telemetry and vehicle state</li>
+          <li>
+            Implement failsafe mechanisms (return-to-home, emergency landing)
+          </li>
+        </ul>
+
+        <h3>Sensor Fusion Algorithm</h3>
+        <p>
+          The most complex part was implementing sensor fusion using an Extended
+          Kalman Filter (EKF). This algorithm:
+        </p>
+        <ul>
+          <li>Fuses GPS, IMU, and barometer data for state estimation</li>
+          <li>Predicts vehicle state even when individual sensors fail</li>
+          <li>
+            Improves positioning accuracy from ±5m (GPS alone) to ±0.5m (fused
+            estimates)
+          </li>
+        </ul>
+
+        <h3>Obstacle Avoidance</h3>
+        <p>
+          Processing LiDAR point clouds in real-time was challenging. I
+          implemented:
+        </p>
+        <ul>
+          <li>Point cloud filtering to remove noisy data</li>
+          <li>Occupancy grid mapping for 3D environment representation</li>
+          <li>
+            RRT* (Rapidly-exploring Random Tree) path planning for collision
+            avoidance
+          </li>
+          <li>Low-latency processing to react within 100ms to obstacles</li>
+        </ul>
+
+        <h2>Testing and Debugging</h2>
+        <p>This was the longest phase. Issues I encountered and solved:</p>
+        <ul>
+          <li>
+            <strong>Vibration Problems:</strong> Motors induced vibrations that
+            corrupted IMU readings. Fixed with vibration dampeners.
+          </li>
+          <li>
+            <strong>GPS Drift:</strong> Obtained unstable GPS locks in urban
+            areas. Solved with dual GPS + compass fusion.
+          </li>
+          <li>
+            <strong>RF Interference:</strong> 5.8GHz FPV transmitter interfered
+            with sensors. Added shielding and separated antenna placement.
+          </li>
+          <li>
+            <strong>Latency Issues:</strong> Obstacle avoidance was too slow.
+            Optimized algorithms and reduced point cloud resolution.
+          </li>
+          <li>
+            <strong>Power Failures:</strong> Unexpected brownouts during heavy
+            compute loads. Upgraded to higher-capacity BEC.
+          </li>
+        </ul>
+
+        <h2>First Flight</h2>
+        <p>
+          The moment of truth arrived when I powered up the system for the first
+          autonomous flight. The preflight checks passed, the communication was
+          stable, and the arm command was accepted. When I pressed "Takeoff," I
+          held my breath.
+        </p>
+
+        <p>
+          The drone lifted off smoothly, climbed to the target altitude, and
+          began autonomous navigation. It successfully navigated to each
+          waypoint, avoided obstacles in its path, and returned to home. That
+          moment was unforgettable.
+        </p>
+
+        <h2>Key Learnings</h2>
+        <ul>
+          <li>
+            <strong>Start simple, iterate:</strong> Begin with basic autonomous
+            flight, then add features one by one
+          </li>
+          <li>
+            <strong>Sensors are everything:</strong> Time spent on calibration
+            pays dividends in performance
+          </li>
+          <li>
+            <strong>Test in the real world:</strong> Simulations don't capture
+            all failure modes
+          </li>
+          <li>
+            <strong>Document as you go:</strong> Future you will thank present
+            you
+          </li>
+          <li>
+            <strong>Failure is part of learning:</strong> Each crash taught me
+            something valuable
+          </li>
+          <li>
+            <strong>Community support matters:</strong> Online forums and
+            technical documentation were invaluable resources
+          </li>
+        </ul>
+
+        <h2>What's Next</h2>
+        <p>
+          This project opened many doors. The skills developed—hardware
+          integration, embedded systems programming, sensor fusion, and
+          autonomous algorithms—are in high demand. The experience led directly
+          to competition opportunities and now I'm exploring applications in
+          delivery systems, agricultural drones, and advanced research in
+          autonomous navigation.
+        </p>
+
+        <p>
+          If you're thinking about building your own autonomous system, my
+          advice:
+          <strong
+            >Start with a clear goal, be patient with debugging, and celebrate
+            small wins along the way.</strong
+          >
+        </p>
+      </article>
+    </div>
+  </body>
+</html>
